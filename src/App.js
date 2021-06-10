@@ -1,66 +1,51 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import './App.css';
+import axios from 'axios';
 
 const ICE_AND_FIRE_HOUSES_API_CALL = 'https://anapioficeandfire.com/api/houses/';
 
-class App extends Component {
 
-  constructor(props) {
-    super(props);
+function App() {
+  const [houses, setHouses] = useState(null);
 
-    this.state = {
-      houses: [],
-      isLoaded: false,
-      error: null,
+  const fetchData = async () => {
+    const response = await axios.get(ICE_AND_FIRE_HOUSES_API_CALL);
 
-    };
+    setHouses(response.data)
   }
 
 
-  //fetchIceAndFireCharacters(id) {
-  fetchIceAndFireCharacters() {
-    console.log("fetchIceAndFireCharacters...")
 
-    fetch(ICE_AND_FIRE_HOUSES_API_CALL)
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            isLoaded: true,
-            items: result.items
-          });
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error
-          });
-        }
-      )
-  }
+  return (
+    <div className="App">
+      <h1>Game of Thrones Houses</h1>
+      <h2>Fetch a list from an API and display it</h2>
 
-
-  render() {
-
-    const { houses, isLoaded, error } = this.state;
-
-    
-    return (
       <div>
-        <h1>Ice And Fire</h1>
-        <ul>
-          {houses.map(house => (
-            <li key={house}>
-              {house.name} {house.region}
-            </li>
-          ))}
-        </ul>
+        <button className="fetch-button" onClick={fetchData}>
+          Fetch Data
+      </button>
       </div>
-    );
-  }
+
+      <div className="houses">
+        {houses &&
+          houses.map((house, index) => {
+            return (
+              <div className="house" key={index}>
+              <h3>House {index + 1}</h3>
+              <h2>{house.name}</h2>
+
+              <div className="details">
+                <p>📖: {house.coatOfArms} pages</p>
+                <p>🏘️: {house.region}</p>
+                <p>⏰: {house.words}</p>
+              </div>
+            </div>
+              );
+          })}
+      </div>
+    </div>
+  )
 }
 
 export default App;
