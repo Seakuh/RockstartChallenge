@@ -1,52 +1,110 @@
-import React, { Component, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+
 import axios from 'axios';
+import { isEmptyBindingElement } from 'typescript';
 
 const ICE_AND_FIRE_HOUSES_API_CALL = 'https://anapioficeandfire.com/api/houses/';
 
-
 function App() {
+
+  document.title = "GoT Houses"
+
+  /**
+   * States of the GoT Houses and Detail
+   * changes on fetch Button clicked
+   */
   const [houses, setHouses] = useState(null);
+  const [houseDetail, setHouseDetail] = useState(null);
+  const [founder, setFounder] = useState(null);
 
-  const fetchData = async () => {
-    const response = await axios.get(ICE_AND_FIRE_HOUSES_API_CALL);
-
+  /**
+   * Fetch Houses
+   */
+  const fetchHouses = async () => {
+    const response = await axios.get(ICE_AND_FIRE_HOUSES_API_CALL)
+      .catch((err) => {
+        console.error(err);
+      });
     setHouses(response.data)
   }
 
+  /**
+   * Set the Detail View to the clicked house and fetch the swonMembers
+   * 
+   * @param {currentHouse} house 
+   */
+  function setHouseDetailState(house) {
 
+    console.log(house.founder);
+    fetchFounder(house.founder);
+    setHouseDetail(house);
+  }
+
+  /**
+   * set the founder from the current house
+   *  
+   * @param {founderApiLink} founderApiCall 
+   */
+  async function fetchFounder(founderApiCall) {
+    console.log(founderApiCall)
+    const response = await axios.get(founderApiCall)
+      .catch((err) => {
+        console.error(err);
+      });
+    console.log("Resonse Founder: " + response.data.name)
+    setFounder(response.name)
+  }
 
   return (
     <div className="App">
       <h1>Game of Thrones Houses</h1>
-      <h2>Fetch a list from an API and display it</h2>
+      <h1>{founder}</h1>
 
       <div>
-        <button className="fetch-button" onClick={fetchData}>
-          Fetch Data
+        <button className="fetch-button" onClick={fetchHouses}>
+          Fetch Houses
       </button>
       </div>
-
-      <div className="houses">
-        {houses &&
-          houses.map((house, index) => {
-            return (
-              <div className="house" key={index}>
-              <h3>House {index + 1}</h3>
-              <h2>{house.name}</h2>
-
-              <div className="details">
-                <p>📖: {house.coatOfArms} pages</p>
-                <p>🏘️: {house.region}</p>
-                <p>⏰: {house.words}</p>
-              </div>
-            </div>
-              );
-          })}
+      <div className="tableContainer">
+        <table>
+          <tbody className="houseTable">
+            {houses && houses.map(
+              (house, index) => (
+                <tr className="house" key={index} onClick={() =>
+                  setHouseDetailState(house)}>
+                  <td>{house.name}</td>
+                </tr>
+              )
+            )}
+          </tbody>
+        </table>
+        {houseDetail && (
+          <div className='houseDetailTable'>
+            <table>
+              <tbody key={houseDetail.name}>
+                <tr>Details:</tr>
+                <tr>Name: {houseDetail.name}</tr>
+                <tr href={houseDetail.url}>url: {houseDetail.url}</tr>
+                <tr>region: {houseDetail.region}</tr>
+                <tr>coatOfArms: {houseDetail.coatOfArms}</tr>
+                <tr>words: {houseDetail.words}</tr>
+                <tr>titles: {houseDetail.titles}</tr>
+                <tr>seals: {houseDetail.seals}</tr>
+                <tr>currentLord: getCurrentLord({houseDetail.currentLord})</tr>
+                <tr>founder: {founder}</tr>
+                <tr>diedOut: {houseDetail.diedOut}</tr>
+                <tr>ancestralWeapons: {houseDetail.ancestralWeapons}</tr>
+                <tr>cadetBranches: {houseDetail.cadetBranches}</tr>
+                <tr>swornMembers: {houseDetail.swornMembers.map(
+                  (swornMember) => <p href={swornMember}>{swornMember}</p>
+                )}</tr>
+              </tbody>
+            </table>
+          </div>)}
       </div>
     </div>
   )
 }
 
 export default App;
-
