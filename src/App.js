@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-
+import ls from 'local-storage'
 import axios from 'axios';
 import { isEmptyBindingElement } from 'typescript';
 
@@ -16,7 +16,8 @@ function App() {
    */
   const [houses, setHouses] = useState(null);
   const [houseDetail, setHouseDetail] = useState(null);
-  const [founder, setFounder] = useState(null);
+  const [founder, setFounder] = useState("No founder");
+  const [swornMembers, setSwornMembers] = useState("No swornmembers");
 
   /**
    * Fetch Houses
@@ -38,6 +39,7 @@ function App() {
 
     console.log(house.founder);
     fetchFounder(house.founder);
+    //fetchswornMembers(house.swornMembers);
     setHouseDetail(house);
   }
 
@@ -56,11 +58,24 @@ function App() {
     setFounder(response.name)
   }
 
+  /**
+   * set the swornMembers from the current house
+   *  
+   * @param {swornMembersApiCall}  swornMembersApiCall
+   */
+  async function fetchswornMembers(swornMembersApiCall) {
+    const response = await axios.get(swornMembersApiCall)
+      .then(console.log("swornMembers: " + response.data[0])
+      )
+      .catch((err) => {
+        console.error(err);
+      });
+    //setSwornMembers(response.name)
+  }
+
   return (
     <div className="App">
       <h1>Game of Thrones Houses</h1>
-      <h1>{founder}</h1>
-
       <div>
         <button className="fetch-button" onClick={fetchHouses}>
           Fetch Houses
@@ -91,8 +106,8 @@ function App() {
                 <tr>words: {houseDetail.words}</tr>
                 <tr>titles: {houseDetail.titles}</tr>
                 <tr>seals: {houseDetail.seals}</tr>
-                <tr>currentLord: getCurrentLord({houseDetail.currentLord})</tr>
-                <tr>founder: {founder}</tr>
+                <tr>currentLord: {houseDetail.currentLord}</tr>
+                <tr>founder: {houseDetail.founder}</tr>
                 <tr>diedOut: {houseDetail.diedOut}</tr>
                 <tr>ancestralWeapons: {houseDetail.ancestralWeapons}</tr>
                 <tr>cadetBranches: {houseDetail.cadetBranches}</tr>
